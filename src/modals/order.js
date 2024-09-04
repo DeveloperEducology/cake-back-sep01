@@ -1,9 +1,17 @@
 const mongoose = require("mongoose");
-const {ObjectId} = mongoose.Schema.Types
+const { ObjectId } = mongoose.Schema.Types;
+
+
+// Media schema definition
+const mediaSchema = new mongoose.Schema({
+  type: { type: String, enum: ["image", "video"], required: true },
+  url: { type: String, required: true },
+});
+
 
 // Order Schema
 const orderSchema = new mongoose.Schema({
-  userId: {type: ObjectId,ref:"User", required: true},  
+  userId: { type: ObjectId, ref: "User", required: true },
   orderId: String,
   senderName: String,
   senderPhoneNumber: String,
@@ -23,11 +31,15 @@ const orderSchema = new mongoose.Schema({
   advance_payment: Number,
   balance_payment: Number,
   paymentType: String,
+  deliveryBoy: String,
   createdAt: {
     type: Date,
     default: Date.now, // Automatically set the date when a document is created
   },
-  status: String,
+  status: {
+    type: String,
+    default: "pending",
+  },
   order_date: {
     type: String,
     required: true,
@@ -38,8 +50,11 @@ const orderSchema = new mongoose.Schema({
   },
   agentName: {
     type: String,
-    required: true
-  }
+    required: true,
+  },
+  agentId: String,
+  image: String,
+
   // createdBy: String,
 });
 

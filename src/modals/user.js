@@ -13,7 +13,7 @@ const userSchema = new mongoose.Schema({
     default:
       "https://t3.ftcdn.net/jpg/03/64/62/36/360_F_364623623_ERzQYfO4HHHyawYkJ16tREsizLyvcaeg.jpg",
   },
-  userName: {
+  name: {
     type: String,
     // required: true,
   },
