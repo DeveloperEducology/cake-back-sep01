@@ -1,5 +1,30 @@
-const DispatchNote = require("../../modals/DispatchNote");
+const UserModel = require("../../modals/user");
 const Order = require("../../modals/order");
+
+const fileUpload = async (req, res) => {
+  if (!req?.file) {
+    res.status(403).json({ status: false, error: "please upload a file" });
+    return;
+  }
+  let data = {};
+  if (!!req?.file) {
+    data = {
+      url: req.file.location,
+      type: req.file.mimetype,
+    };
+  }
+  try {
+    res.send({
+      data: data,
+    });
+
+    console.log("fileupload in user api", data);
+  } catch (error) {
+    res.status(403).json({ status: false, error: error });
+  }
+};
+
+
 
 const createOrder = async (req, res) => {
   const {
@@ -27,7 +52,9 @@ const createOrder = async (req, res) => {
     order_date,
     agentName,
     advance_payment,
-      balance_payment,
+    balance_payment,
+    agentId,
+    image
   } = req.body;
 
   // Generate the postedDate in DD-MM-YY format
@@ -64,6 +91,8 @@ const createOrder = async (req, res) => {
       agentName,
       advance_payment,
       balance_payment,
+      agentId,
+      image
     });
     const savedOrder = await newOrder.save();
     console.log("savedOrder", savedOrder);
@@ -74,17 +103,17 @@ const createOrder = async (req, res) => {
 };
 
 const updateOrder = async (req, res) => {
-  const { id } = req.params;
-  const updates = req.body;
+  const { orderId } = req.params;
+  const updatedOrder = req.body;
+
   try {
-    const updatedOrder = await Order.findByIdAndUpdate(id, updates, {
+    // Assuming you are using MongoDB
+    const result = await Order.findByIdAndUpdate(orderId, updatedOrder, {
       new: true,
     });
-    if (!updatedOrder)
-      return res.status(404).json({ message: "Order not found" });
-    res.json(updatedOrder);
+    res.status(200).json(result);
   } catch (error) {
-    res.status(500).json({ error: error.message });
+    res.status(500).json({ message: "Failed to update order", error });
   }
 };
 
@@ -177,9 +206,84 @@ const byDateRange = async (req, res) => {
   }
 };
 
-module.exports = {
-  createOrder,
+const countOrdersByStatusForAgents = async (req, res) => {
+  try {
+    // Fetch all agents from the UserModel
+    const agents = await UserModel.find({ userType: "agent" }).select(
+      "_id name"
+    );
 
+    // Create an array of agent IDs (user IDs)
+    const agentIds = agents.map((agent) => agent._id);
+
+    // Fetch the count of orders grouped by status for each agent
+    const ordersCount = await Order.aggregate([
+      {
+        $match: {
+          userId: { $in: agentIds }, // Only include orders linked to these agents
+        },
+      },
+      {
+        $group: {
+          _id: {
+            userId: "$userId", // Group by userId (agent's ID)
+            status: "$status", // Group by order status
+          },
+          totalOrders: { $sum: 1 }, // Count the number of orders per agent per status
+        },
+      },
+      {
+        $group: {
+          _id: "$_id.userId", // Group by agent ID
+          orders: {
+            $push: {
+              status: "$_id.status",
+              totalOrders: "$totalOrders",
+            },
+          },
+        },
+      },
+    ]);
+
+    // Join the order count data with the agent data
+    const result = agents.map((agent) => {
+      const agentOrderCount = ordersCount.find((order) =>
+        order._id.equals(agent._id)
+      );
+      const ordersByStatus = {
+        pending: 0,
+        delivered: 0,
+        processing: 0,
+      };
+
+      if (agentOrderCount) {
+        agentOrderCount.orders.forEach((order) => {
+          ordersByStatus[order.status] = order.totalOrders;
+        });
+      }
+
+      return {
+        agentId: agent._id,
+        agentName: agent.name,
+        ...ordersByStatus,
+      };
+    });
+
+    // Send the response
+    res.send({
+      data: result,
+      status: true,
+    });
+  } catch (error) {
+    // Handle any errors
+    res.status(403).json({ status: false, error: error.message });
+  }
+};
+
+module.exports = {
+  fileUpload,
+  createOrder,
+  countOrdersByStatusForAgents,
   updateOrder,
   getAllOrders,
   getOrderByUserId,

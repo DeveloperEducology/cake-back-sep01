@@ -10,7 +10,7 @@ let orderId = null;
 let phoneNumber = null;
 
 const createUser = async (req, res) => {
-  const { email, userName, password, userType, phoneNumber } = req.body;
+  const { email, name, password, userType, phoneNumber, address } = req.body;
 
   try {
     let checkUser = await UserModel.findOne({
@@ -25,6 +25,7 @@ const createUser = async (req, res) => {
         ...req.body,
         password: passwordHash,
       });
+      F;
 
       const token = jwt.sign(
         { user_id: result?._id, email },
@@ -248,6 +249,49 @@ const verifyOTP = async (req, res) => {
   }
 };
 
+const fetchDeliveryBoys = async (req, res) => {
+  try {
+    // Query the database to find all users with the userType 'deliveryBoys'
+    let data = await UserModel.find({ userType: "deliveryBoy" }).select(
+      "name phoneNumber _id"
+    ); // Select only the name, mobileNumber, and _id fields
+
+    // Log the data for debugging purposes
+    console.log("data", data);
+
+    // Send the retrieved data back to the client
+    res.send({
+      data: data,
+      status: true,
+    });
+  } catch (error) {
+    // Send an error response if something goes wrong
+    res.status(403).json({ status: false, error: error.message });
+  }
+};
+
+const fetchBoys = async (req, res) => {
+  try {
+    // Query the database to find all users with the userType 'agent' or 'deliveryBoy'
+    let data = await UserModel.find({
+      userType: { $in: ["agent", "deliveryBoy"] },
+    }).select("name phoneNumber _id userType"); // Select only the name, phoneNumber, _id, and userType fields
+
+    // Log the data for debugging purposes
+    console.log("data", data);
+
+    // Send the retrieved data back to the client
+    res.send({
+      data: data,
+      status: true,
+    });
+  } catch (error) {
+    // Send an error response if something goes wrong
+    res.status(403).json({ status: false, error: error.message });
+  }
+};
+
+
 module.exports = {
   // fileUpload,
   createUser,
@@ -257,4 +301,6 @@ module.exports = {
   fetchUserDetails,
   sendOTP,
   verifyOTP,
+  fetchDeliveryBoys,
+  fetchBoys
 };

@@ -8,6 +8,7 @@ router.post("/otp-less", user_controller.sendOTP);
 
 router.post("/verifyOTP-less", user_controller.verifyOTP);
 router.post("/agents", user_controller.createAgent);
-
+router.get("/deliveryboys", user_controller.fetchDeliveryBoys);
+router.get("/allboys", user_controller.fetchBoys);
 
 module.exports = router;
