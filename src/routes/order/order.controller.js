@@ -140,7 +140,7 @@ const orderById = async (req, res) => {
   }
 };
 
-const getAllOrders = async (req, res) => {
+const getAllOrders1 = async (req, res) => {
   try {
     const orders = await Order.find();
     res.json(orders);
@@ -149,6 +149,30 @@ const getAllOrders = async (req, res) => {
   }
 };
 
+
+const getAllOrders = async (req, res) => {
+  try {
+    // Fetch all orders from the database
+    const orders = await Order.find();
+
+    // Count the number of orders in different statuses
+    const pendingCount = orders.filter(order => order.status === 'pending').length;
+    const processingCount = orders.filter(order => order.status === 'processing').length;
+    const deliveredCount = orders.filter(order => order.status === 'delivered').length;
+
+    // Send the orders and the counts
+    res.json({
+      orders,
+      statusCounts: {
+        pending: pendingCount,
+        processing: processingCount,
+        delivered: deliveredCount
+      }
+    });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
 
 const getOrderByUserId = async (req, res) => {
   const { userId } = req.params;
