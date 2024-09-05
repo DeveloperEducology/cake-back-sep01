@@ -140,7 +140,7 @@ const orderById = async (req, res) => {
   }
 };
 
-const getAllOrders1 = async (req, res) => {
+const getAllOrders = async (req, res) => {
   try {
     const orders = await Order.find();
     res.json(orders);
@@ -149,7 +149,7 @@ const getAllOrders1 = async (req, res) => {
   }
 };
 
-const getAllOrders = async (req, res) => {
+const getAllOrders1 = async (req, res) => {
   try {
     // Fetch all orders from the database
     const orders = await Order.find();
