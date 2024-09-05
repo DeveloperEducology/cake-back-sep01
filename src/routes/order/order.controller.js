@@ -209,9 +209,9 @@ const byDateRange = async (req, res) => {
 const countOrdersByStatusForAgents = async (req, res) => {
   try {
     // Fetch all agents from the UserModel
-    const agents = await UserModel.find({ userType: {$in: ["agent", "admin"] }).select(
-      "_id name"
-    );
+    const agents = await UserModel.find({
+      userType: { $in: ["agent", "admin"] },
+    }).select("_id name");
 
     // Create an array of agent IDs (user IDs)
     const agentIds = agents.map((agent) => agent._id);
