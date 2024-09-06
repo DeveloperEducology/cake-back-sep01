@@ -24,8 +24,6 @@ const fileUpload = async (req, res) => {
   }
 };
 
-
-
 const createOrder = async (req, res) => {
   const {
     userId,
@@ -54,7 +52,8 @@ const createOrder = async (req, res) => {
     advance_payment,
     balance_payment,
     agentId,
-    image
+    image,
+    dispatchImage,
   } = req.body;
 
   // Generate the postedDate in DD-MM-YY format
@@ -92,7 +91,8 @@ const createOrder = async (req, res) => {
       advance_payment,
       balance_payment,
       agentId,
-      image
+      image,
+      dispatchImage,
     });
     const savedOrder = await newOrder.save();
     console.log("savedOrder", savedOrder);
@@ -119,8 +119,10 @@ const updateOrder = async (req, res) => {
 
 const deleteOrder = async (req, res) => {
   const { id } = req.params;
+  console.log(id);
   try {
     const deletedOrder = await Order.findByIdAndDelete(id);
+
     if (!deletedOrder)
       return res.status(404).json({ message: "Order not found" });
     res.json({ message: "Order deleted successfully" });
@@ -148,9 +150,6 @@ const getAllOrders = async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 };
-
-
-
 
 const getOrderByUserId = async (req, res) => {
   const { userId } = req.params;

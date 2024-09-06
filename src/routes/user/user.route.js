@@ -10,5 +10,6 @@ router.post("/verifyOTP-less", user_controller.verifyOTP);
 router.post("/agents", user_controller.createAgent);
 router.get("/deliveryboys", user_controller.fetchDeliveryBoys);
 router.get("/allboys", user_controller.fetchBoys);
+router.delete("/delete-agent/:id", user_controller.deleteAgent);
 
 module.exports = router;
