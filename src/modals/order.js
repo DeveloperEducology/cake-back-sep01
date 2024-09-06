@@ -54,7 +54,7 @@ const orderSchema = new mongoose.Schema({
   },
   agentId: String,
   image: String,
-
+  dispatchImage: String
   // createdBy: String,
 });
 

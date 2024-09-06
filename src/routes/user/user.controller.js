@@ -275,7 +275,7 @@ const fetchBoys = async (req, res) => {
     // Query the database to find all users with the userType 'agent' or 'deliveryBoy'
     let data = await UserModel.find({
       userType: { $in: ["agent", "deliveryBoy"] },
-    }).select("name phoneNumber _id userType"); // Select only the name, phoneNumber, _id, and userType fields
+    }).select("name phoneNumber _id userType address"); // Select only the name, phoneNumber, _id, and userType fields
 
     // Log the data for debugging purposes
     console.log("data", data);
@@ -291,6 +291,19 @@ const fetchBoys = async (req, res) => {
   }
 };
 
+const deleteAgent = async (req, res) => {
+  const { id } = req.params;
+  console.log(id)
+  try {
+    const deleteAgent = await UserModel.findByIdAndDelete(id);
+
+    if (!deleteAgent)
+      return res.status(404).json({ message: "Agent not found" });
+    res.json({ message: "Order deleted successfully" });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
 
 module.exports = {
   // fileUpload,
@@ -302,5 +315,6 @@ module.exports = {
   sendOTP,
   verifyOTP,
   fetchDeliveryBoys,
-  fetchBoys
+  fetchBoys,
+  deleteAgent
 };
