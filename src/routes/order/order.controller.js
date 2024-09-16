@@ -1,6 +1,6 @@
 const UserModel = require("../../modals/user");
 const Order = require("../../modals/order");
-const sharp = require("sharp");
+const mongoose = require("mongoose");
 
 const fileUpload = async (req, res) => {
   if (!req?.file) {
@@ -29,6 +29,7 @@ const createOrder = async (req, res) => {
   const {
     userId,
     orderId,
+    source,
     senderName,
     senderPhoneNumber,
     receiverName,
@@ -46,13 +47,15 @@ const createOrder = async (req, res) => {
     status,
     quantity,
     shippingInfo,
-    // paymentType,
+    paymentMethod,
     order_date,
     agentName,
     advance_payment,
     balance_payment,
     agentId,
+    deliveryBoyId,
     image,
+    dispatchImage,
   } = req.body;
 
   // Generate the postedDate in DD-MM-YY format
@@ -67,6 +70,7 @@ const createOrder = async (req, res) => {
     const newOrder = new Order({
       userId,
       orderId,
+      source,
       senderName,
       senderPhoneNumber,
       receiverName,
@@ -83,13 +87,15 @@ const createOrder = async (req, res) => {
       deliveryDate, // Include if this is still relevant
       status,
       shippingInfo,
-      // paymentType,
+      paymentMethod,
       order_date,
       agentName,
       advance_payment,
       balance_payment,
       agentId,
+      deliveryBoyId,
       image,
+      dispatchImage,
     });
     const savedOrder = await newOrder.save();
     console.log("savedOrder", savedOrder);
@@ -307,6 +313,33 @@ const countOrdersByStatusForAgents = async (req, res) => {
   }
 };
 
+// Fetch orders assigned to a delivery boy
+const getDeliveries = async (req, res) => {
+  try {
+    const id = req.params.id;
+
+    if (!id) {
+      return res.status(400).json({ message: "Delivery Boy ID is required" });
+    }
+
+    console.log("Delivery Boy ID:", id);
+
+    // Find orders assigned to the specific delivery boy
+    const orders = await Order.find({ deliveryBoyId: id, status: 'processing' });
+
+    if (!orders || orders.length === 0) {
+      return res
+        .status(404)
+        .json({ message: "No orders found for this delivery boy" });
+    }
+
+    return res.status(200).json(orders);
+  } catch (error) {
+    console.error("Error fetching orders:", error);
+    return res.status(500).json({ message: "Server error" });
+  }
+};
+
 module.exports = {
   fileUpload,
   createOrder,
@@ -318,4 +351,5 @@ module.exports = {
   orderById,
   searchByDate,
   byDateRange,
+  getDeliveries,
 };

@@ -4,7 +4,6 @@ const auth = require("../../middleware/auth");
 const order_controller = require("./order.controller");
 const adminCheck = require("../../middleware/adminCheck");
 
-
 const uploadMiddleWare = require("../../middleware/fileUpload");
 
 router.post(
@@ -26,6 +25,8 @@ router.get(
   "/orders/by-date-range/:startDate/:endDate",
   order_controller.byDateRange
 );
+
+router.get("/delivery-orders/:id", order_controller.getDeliveries);
 
 module.exports = router; // Corrected from `module. Exports` to `module.exports`
 

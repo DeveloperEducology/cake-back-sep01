@@ -28,7 +28,7 @@ const orderSchema = new mongoose.Schema({
   advance_payment: Number,
   balance_payment: Number,
   paymentType: String,
-  deliveryBoy: String,
+  deliveryBoyId: { type: ObjectId, ref: "User", required: true },
   createdAt: {
     type: Date,
     default: Date.now, // Automatically set the date when a document is created
@@ -50,6 +50,8 @@ const orderSchema = new mongoose.Schema({
     required: true,
   },
   agentId: String,
+  paymentMethod: String,
+  source: String,
   image: String,
   dispatchImage: String,
 
